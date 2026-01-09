@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { ChatDotRound } from '@element-plus/icons-vue'
 import BaseIcon from '@/components/atoms/BaseIcon.vue'
 import VoiceRecorder from '@/components/organisms/VoiceRecorder.vue'
 import ConversationHistory from '@/components/organisms/ConversationHistory.vue'
 import ConversationSidebar from '@/components/organisms/ConversationSidebar.vue'
+import TextInput from '@/components/molecules/TextInput.vue'
 import { useConversationStore } from '@/stores/conversation'
 
 const conversationStore = useConversationStore()
@@ -22,6 +23,15 @@ const conversationTitle = computed(() => {
   }
   return 'Conversation'
 })
+
+// Text input
+const textInputRef = ref<InstanceType<typeof TextInput>>()
+
+async function handleTextMessage(message: string) {
+  if (!message.trim()) return
+  await conversationStore.sendTextMessage(message)
+  textInputRef.value?.clear()
+}
 </script>
 
 <template>
@@ -53,16 +63,18 @@ const conversationTitle = computed(() => {
           <ConversationHistory />
         </div>
 
-        <!-- Voice Recorder at Bottom -->
+        <!-- Input Controls at Bottom -->
         <div class="recorder-footer">
-          <VoiceRecorder
-            size="medium"
-            :show-waveform="true"
-            :icon-size="40"
+          <TextInput
+            ref="textInputRef"
+            placeholder="Écrivez votre message..."
+            @submit="handleTextMessage"
           />
-          <p class="recorder-hint">
-            Maintenez le bouton pour parler avec Jarvis
-          </p>
+          <VoiceRecorder
+            size="small"
+            :show-waveform="false"
+            :icon-size="28"
+          />
         </div>
       </div>
     </div>
@@ -162,23 +174,16 @@ const conversationTitle = computed(() => {
   animation: fadeIn 0.3s ease;
 }
 
-// Voice Recorder Footer
+// Input Controls Footer
 .recorder-footer {
   padding: 1.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.02);
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
   flex-shrink: 0;
-
-  .recorder-hint {
-    font-size: 0.8125rem;
-    color: rgba(255, 255, 255, 0.5);
-    text-align: center;
-    margin: 0;
-  }
 }
 
 @keyframes fadeIn {
@@ -216,6 +221,7 @@ const conversationTitle = computed(() => {
 
   .recorder-footer {
     padding: 1rem;
+    gap: 0.75rem;
   }
 }
 </style>
