@@ -38,7 +38,14 @@ const buttonClasses = computed(() => {
   const classes = ['mic-button']
   if (isRecording.value) classes.push('is-recording')
   if (isProcessing.value) classes.push('is-processing')
+  classes.push(`size-${props.size}`)
   return classes
+})
+
+const containerSizeClasses = computed(() => {
+  if (props.size === 'small') return 'w-10 h-10'
+  if (props.size === 'default') return 'w-20 h-20'
+  return 'w-32 h-32'
 })
 
 // Methods
@@ -189,9 +196,9 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="voice-recorder flex flex-col items-center gap-6">
+  <div class="voice-recorder flex flex-col items-center" :class="size === 'small' ? 'gap-0' : 'gap-6'">
     <!-- Microphone Button -->
-    <div class="relative flex items-center justify-center w-32 h-32">
+    <div class="relative flex items-center justify-center" :class="containerSizeClasses">
       <!-- Recording Rings -->
       <div v-if="isRecording" class="absolute inset-0 pointer-events-none">
         <div class="ring ring-1"></div>
@@ -212,7 +219,7 @@ onUnmounted(() => {
         <BaseIcon v-if="!isRecording && !isProcessing" :size="iconSize">
           <Microphone />
         </BaseIcon>
-        <BaseSpinner v-else-if="isProcessing" size="lg" color="white" />
+        <BaseSpinner v-else-if="isProcessing" :size="size === 'small' ? 'sm' : 'lg'" color="white" />
         <BaseIcon v-else :size="iconSize" class="pulsing">
           <VideoPlay />
         </BaseIcon>
@@ -250,14 +257,39 @@ onUnmounted(() => {
 @import '@/styles/main.scss';
 
 .mic-button {
-  @apply w-32 h-32 rounded-full flex items-center justify-center
+  @apply rounded-full flex items-center justify-center
          text-white cursor-pointer border-none transition-all duration-300;
   @include gradient-primary;
-  box-shadow: 0 8px 24px rgba($primary, 0.4);
 
-  &:hover:not(:disabled) {
-    transform: scale(1.05);
-    box-shadow: 0 12px 32px rgba($primary, 0.6);
+  // Size variants
+  &.size-large {
+    @apply w-32 h-32;
+    box-shadow: 0 8px 24px rgba($primary, 0.4);
+
+    &:hover:not(:disabled) {
+      transform: scale(1.05);
+      box-shadow: 0 12px 32px rgba($primary, 0.6);
+    }
+  }
+
+  &.size-default {
+    @apply w-20 h-20;
+    box-shadow: 0 6px 16px rgba($primary, 0.4);
+
+    &:hover:not(:disabled) {
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba($primary, 0.6);
+    }
+  }
+
+  &.size-small {
+    @apply w-10 h-10;
+    box-shadow: 0 2px 8px rgba($primary, 0.3);
+
+    &:hover:not(:disabled) {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba($primary, 0.5);
+    }
   }
 
   &:active:not(:disabled) {
@@ -266,8 +298,17 @@ onUnmounted(() => {
 
   &.is-recording {
     background: linear-gradient(135deg, $error 0%, darken($error, 10%) 100%);
-    box-shadow: 0 8px 24px rgba($error, 0.6);
     animation: pulse-glow 1.5s ease-in-out infinite;
+
+    &.size-large {
+      box-shadow: 0 8px 24px rgba($error, 0.6);
+    }
+    &.size-default {
+      box-shadow: 0 6px 16px rgba($error, 0.6);
+    }
+    &.size-small {
+      box-shadow: 0 2px 8px rgba($error, 0.5);
+    }
   }
 
   &.is-processing {
