@@ -200,7 +200,6 @@ async function handleTextMessage(message: string) {
 
 .input-wrapper {
   flex: 1;
-  max-width: 600px;
 }
 
 .compact-textarea {
