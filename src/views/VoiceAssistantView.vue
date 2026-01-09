@@ -5,7 +5,6 @@ import BaseIcon from '@/components/atoms/BaseIcon.vue'
 import VoiceRecorder from '@/components/organisms/VoiceRecorder.vue'
 import ConversationHistory from '@/components/organisms/ConversationHistory.vue'
 import ConversationSidebar from '@/components/organisms/ConversationSidebar.vue'
-import TextInput from '@/components/molecules/TextInput.vue'
 import { useConversationStore } from '@/stores/conversation'
 
 const conversationStore = useConversationStore()
@@ -25,12 +24,12 @@ const conversationTitle = computed(() => {
 })
 
 // Text input
-const textInputRef = ref<InstanceType<typeof TextInput>>()
+const textMessage = ref('')
 
 async function handleTextMessage(message: string) {
   if (!message.trim()) return
   await conversationStore.sendTextMessage(message)
-  textInputRef.value?.clear()
+  textMessage.value = ''
 }
 </script>
 
@@ -65,16 +64,29 @@ async function handleTextMessage(message: string) {
 
         <!-- Input Controls at Bottom -->
         <div class="recorder-footer">
-          <TextInput
-            ref="textInputRef"
-            placeholder="Écrivez votre message..."
-            @submit="handleTextMessage"
-          />
-          <VoiceRecorder
-            size="small"
-            :show-waveform="false"
-            :icon-size="28"
-          />
+          <div class="input-wrapper">
+            <textarea
+              v-model="textMessage"
+              placeholder="Écrivez votre message..."
+              class="compact-textarea"
+              rows="1"
+              @keypress.enter.exact.prevent="handleTextMessage(textMessage)"
+            />
+          </div>
+          <div class="controls-wrapper">
+            <VoiceRecorder
+              size="small"
+              :show-waveform="false"
+              :icon-size="28"
+            />
+            <button
+              class="send-button"
+              :disabled="!textMessage.trim()"
+              @click="handleTextMessage(textMessage)"
+            >
+              Envoyer
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -176,14 +188,73 @@ async function handleTextMessage(message: string) {
 
 // Input Controls Footer
 .recorder-footer {
-  padding: 1.5rem;
+  padding: 1rem 1.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.02);
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
   flex-shrink: 0;
+}
+
+.input-wrapper {
+  flex: 1;
+  max-width: 600px;
+}
+
+.compact-textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  color: white;
+  font-size: 0.875rem;
+  font-family: inherit;
+  resize: none;
+  min-height: 36px;
+  transition: all 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+  }
+}
+
+.controls-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.send-button {
+  @include gradient-primary;
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba($primary, 0.4);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
 @keyframes fadeIn {
@@ -221,7 +292,17 @@ async function handleTextMessage(message: string) {
 
   .recorder-footer {
     padding: 1rem;
-    gap: 0.75rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .input-wrapper {
+    max-width: 100%;
+  }
+
+  .controls-wrapper {
+    flex-direction: row;
+    gap: 0.5rem;
   }
 }
 </style>
