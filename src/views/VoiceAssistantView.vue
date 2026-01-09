@@ -73,19 +73,19 @@ async function handleTextMessage(message: string) {
               @keypress.enter.exact.prevent="handleTextMessage(textMessage)"
             />
           </div>
-          <div class="controls-wrapper">
+          <button
+            class="send-button"
+            :disabled="!textMessage.trim()"
+            @click="handleTextMessage(textMessage)"
+          >
+            Envoyer
+          </button>
+          <div class="voice-button-wrapper">
             <VoiceRecorder
               size="small"
               :show-waveform="false"
-              :icon-size="28"
+              :icon-size="18"
             />
-            <button
-              class="send-button"
-              :disabled="!textMessage.trim()"
-              @click="handleTextMessage(textMessage)"
-            >
-              Envoyer
-            </button>
           </div>
         </div>
       </div>
@@ -194,7 +194,7 @@ async function handleTextMessage(message: string) {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
   flex-shrink: 0;
 }
 
@@ -227,21 +227,14 @@ async function handleTextMessage(message: string) {
   }
 }
 
-.controls-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .send-button {
   @include gradient-primary;
   border: none;
-  border-radius: 0.375rem;
-  padding: 0.375rem 0.75rem;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1.25rem;
   color: white;
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
@@ -255,6 +248,12 @@ async function handleTextMessage(message: string) {
     opacity: 0.5;
     cursor: not-allowed;
   }
+}
+
+.voice-button-wrapper {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
 }
 
 @keyframes fadeIn {
@@ -292,17 +291,22 @@ async function handleTextMessage(message: string) {
 
   .recorder-footer {
     padding: 1rem;
-    gap: 0.5rem;
+    gap: 0.75rem;
     flex-wrap: wrap;
   }
 
   .input-wrapper {
     max-width: 100%;
+    flex: 1 1 100%;
   }
 
-  .controls-wrapper {
-    flex-direction: row;
-    gap: 0.5rem;
+  .send-button {
+    font-size: 0.8125rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .voice-button-wrapper {
+    margin-left: 0;
   }
 }
 </style>
