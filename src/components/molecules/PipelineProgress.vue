@@ -1,0 +1,221 @@
+<script setup lang="ts">
+import { computed } from 'vue'
+
+interface Props {
+  stages: Array<{
+    name: string
+    status: 'pending' | 'running' | 'completed' | 'error'
+  }>
+  currentStage: number
+}
+
+const props = defineProps<Props>()
+
+const progress = computed(() => {
+  const total = props.stages.length
+  const completed = props.stages.filter(s => s.status === 'completed').length
+  return (completed / total) * 100
+})
+</script>
+
+<template>
+  <div class="pipeline-progress">
+    <!-- Running Man Animation -->
+    <div class="runner-track">
+      <div class="runner" :style="{ left: `${progress}%` }">
+        <div class="runner-body">
+          🏃‍♂️
+        </div>
+      </div>
+      <div class="track-line" />
+      <div class="track-progress" :style="{ width: `${progress}%` }" />
+    </div>
+
+    <!-- Pipeline Stages -->
+    <div class="stages-list">
+      <div
+        v-for="(stage, index) in stages"
+        :key="index"
+        class="stage-item"
+        :class="{
+          'is-completed': stage.status === 'completed',
+          'is-running': stage.status === 'running',
+          'is-error': stage.status === 'error'
+        }"
+      >
+        <div class="stage-icon">
+          <div v-if="stage.status === 'completed'" class="icon-check">✓</div>
+          <div v-else-if="stage.status === 'running'" class="icon-spinner" />
+          <div v-else-if="stage.status === 'error'" class="icon-error">✗</div>
+          <div v-else class="icon-pending">{{ index + 1 }}</div>
+        </div>
+        <div class="stage-name">{{ stage.name }}</div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style lang="scss" scoped>
+@import '@/styles/variables';
+
+.pipeline-progress {
+  width: 100%;
+}
+
+.runner-track {
+  position: relative;
+  height: 60px;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+
+  .track-line {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    transform: translateY(-50%);
+  }
+
+  .track-progress {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    height: 4px;
+    background: linear-gradient(90deg, $primary, $success);
+    border-radius: 2px;
+    transform: translateY(-50%);
+    transition: width 0.5s ease;
+  }
+
+  .runner {
+    position: absolute;
+    top: 0;
+    transition: left 0.5s ease;
+    z-index: 10;
+    transform: translateX(-50%);
+
+    .runner-body {
+      font-size: 2.5rem;
+      animation: run 0.5s steps(2) infinite;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+    }
+  }
+}
+
+@keyframes run {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.stages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.stage-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 0.5rem;
+  border-left: 3px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+
+  &.is-running {
+    border-left-color: $primary;
+    background: rgba(102, 126, 234, 0.1);
+
+    .stage-icon {
+      background: rgba(102, 126, 234, 0.2);
+      border-color: $primary;
+    }
+  }
+
+  &.is-completed {
+    border-left-color: $success;
+
+    .stage-icon {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: $success;
+    }
+
+    .stage-name {
+      opacity: 0.7;
+    }
+  }
+
+  &.is-error {
+    border-left-color: $error;
+
+    .stage-icon {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: $error;
+    }
+  }
+}
+
+.stage-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+
+  .icon-check {
+    color: $success;
+    font-size: 1.125rem;
+    font-weight: bold;
+  }
+
+  .icon-error {
+    color: $error;
+    font-size: 1.125rem;
+    font-weight: bold;
+  }
+
+  .icon-pending {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .icon-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    border-top-color: $primary;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.stage-name {
+  flex: 1;
+  font-size: 0.9375rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+</style>

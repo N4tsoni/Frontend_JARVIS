@@ -2,65 +2,188 @@
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { ConversationMessage } from '@/types/api'
+import type { Conversation, Message } from '@/types/api'
 import { jarvisApi } from '@/services/api'
 
 export const useConversationStore = defineStore('conversation', () => {
   // State
-  const messages = ref<ConversationMessage[]>([])
+  const conversations = ref<Conversation[]>([])
+  const currentConversationId = ref<string | null>(null)
   const isRecording = ref(false)
   const isProcessing = ref(false)
+  const isLoading = ref(false)
   const currentAudio = ref<HTMLAudioElement | null>(null)
   const error = ref<string | null>(null)
 
   // Getters
-  const messageCount = computed(() => messages.value.length)
-  const lastMessage = computed(() => messages.value[messages.value.length - 1])
+  const currentConversation = computed(() => {
+    if (!currentConversationId.value) return null
+    return conversations.value.find((c) => c.id === currentConversationId.value) || null
+  })
+
+  const currentMessages = computed(() => {
+    return currentConversation.value?.messages || []
+  })
+
+  const messageCount = computed(() => currentMessages.value.length)
+
+  const lastMessage = computed(() => {
+    const msgs = currentMessages.value
+    return msgs.length > 0 ? msgs[msgs.length - 1] : null
+  })
+
   const isPlaying = computed(() => {
     return currentAudio.value && !currentAudio.value.paused
   })
 
+  const hasActiveConversation = computed(() => currentConversationId.value !== null)
+
   // Actions
-  function addMessage(message: Omit<ConversationMessage, 'id' | 'timestamp'>) {
-    const newMessage: ConversationMessage = {
-      ...message,
-      id: crypto.randomUUID(),
-      timestamp: new Date(),
+
+  /**
+   * Charge toutes les conversations depuis l'API
+   */
+  async function loadConversations() {
+    try {
+      isLoading.value = true
+      const response = await jarvisApi.listConversations()
+      conversations.value = response.conversations
+      return response
+    } catch (err: any) {
+      const errorMsg =
+        err.response?.data?.detail || err.message || 'Erreur lors du chargement des conversations'
+      setError(errorMsg)
+      throw err
+    } finally {
+      isLoading.value = false
     }
-    messages.value.push(newMessage)
   }
 
-  function setRecording(recording: boolean) {
-    isRecording.value = recording
+  /**
+   * Crée une nouvelle conversation
+   */
+  async function createConversation(name?: string) {
+    try {
+      isLoading.value = true
+      const response = await jarvisApi.createConversation(name ? { name } : undefined)
+
+      // Ajouter à la liste locale
+      conversations.value.unshift(response.conversation)
+
+      // Définir comme conversation active
+      currentConversationId.value = response.conversation.id
+
+      return response.conversation
+    } catch (err: any) {
+      const errorMsg =
+        err.response?.data?.detail || err.message || 'Erreur lors de la création de la conversation'
+      setError(errorMsg)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
   }
 
-  function setProcessing(processing: boolean) {
-    isProcessing.value = processing
+  /**
+   * Sélectionne une conversation active
+   */
+  async function selectConversation(conversationId: string) {
+    try {
+      isLoading.value = true
+
+      // Charger la conversation avec ses messages
+      const conversation = await jarvisApi.getConversation(conversationId, true)
+
+      // Mettre à jour la conversation dans la liste locale
+      const index = conversations.value.findIndex((c) => c.id === conversationId)
+      if (index >= 0) {
+        conversations.value[index] = conversation
+      } else {
+        conversations.value.unshift(conversation)
+      }
+
+      // Définir comme conversation active
+      currentConversationId.value = conversationId
+    } catch (err: any) {
+      const errorMsg =
+        err.response?.data?.detail || err.message || 'Erreur lors du chargement de la conversation'
+      setError(errorMsg)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
   }
 
-  function setError(errorMessage: string | null) {
-    error.value = errorMessage
+  /**
+   * Renomme une conversation
+   */
+  async function renameConversation(conversationId: string, name: string) {
+    try {
+      const updated = await jarvisApi.renameConversation(conversationId, { name })
+
+      // Mettre à jour la conversation dans la liste locale
+      const index = conversations.value.findIndex((c) => c.id === conversationId)
+      if (index >= 0) {
+        conversations.value[index].name = updated.name
+        conversations.value[index].updated_at = updated.updated_at
+      }
+
+      return updated
+    } catch (err: any) {
+      const errorMsg =
+        err.response?.data?.detail || err.message || 'Erreur lors du renommage de la conversation'
+      setError(errorMsg)
+      throw err
+    }
   }
 
+  /**
+   * Supprime une conversation
+   */
+  async function deleteConversation(conversationId: string) {
+    try {
+      await jarvisApi.deleteConversation(conversationId)
+
+      // Retirer de la liste locale
+      const index = conversations.value.findIndex((c) => c.id === conversationId)
+      if (index >= 0) {
+        conversations.value.splice(index, 1)
+      }
+
+      // Si c'était la conversation active, la désélectionner
+      if (currentConversationId.value === conversationId) {
+        currentConversationId.value = null
+      }
+    } catch (err: any) {
+      const errorMsg =
+        err.response?.data?.detail ||
+        err.message ||
+        'Erreur lors de la suppression de la conversation'
+      setError(errorMsg)
+      throw err
+    }
+  }
+
+  /**
+   * Traite un message vocal
+   */
   async function processVoiceMessage(audioBlob: Blob) {
     try {
       setProcessing(true)
       setError(null)
 
-      const response = await jarvisApi.processVoice(audioBlob)
+      // S'assurer qu'on a une conversation active, sinon en créer une
+      if (!currentConversationId.value) {
+        await createConversation()
+      }
 
-      // Ajouter le message de l'utilisateur
-      addMessage({
-        role: 'user',
-        content: response.transcription,
-      })
+      // Envoyer l'audio pour traitement
+      const response = await jarvisApi.processVoice(audioBlob, currentConversationId.value!)
 
-      // Ajouter la réponse de Jarvis
-      addMessage({
-        role: 'assistant',
-        content: response.response,
-        audioUrl: response.audioUrl,
-      })
+      // Recharger la conversation pour avoir les nouveaux messages
+      if (currentConversationId.value) {
+        await selectConversation(currentConversationId.value)
+      }
 
       // Jouer l'audio de la réponse automatiquement
       if (response.audioUrl) {
@@ -77,6 +200,9 @@ export const useConversationStore = defineStore('conversation', () => {
     }
   }
 
+  /**
+   * Lecture d'un fichier audio
+   */
   async function playAudio(audioUrl: string) {
     try {
       // Arrêter l'audio en cours si nécessaire
@@ -105,6 +231,9 @@ export const useConversationStore = defineStore('conversation', () => {
     }
   }
 
+  /**
+   * Arrête la lecture audio
+   */
   function stopAudio() {
     if (currentAudio.value) {
       currentAudio.value.pause()
@@ -112,29 +241,86 @@ export const useConversationStore = defineStore('conversation', () => {
     }
   }
 
-  function clearMessages() {
-    messages.value = []
-    stopAudio()
+  /**
+   * Définit l'état d'enregistrement
+   */
+  function setRecording(recording: boolean) {
+    isRecording.value = recording
+  }
+
+  /**
+   * Définit l'état de traitement
+   */
+  function setProcessing(processing: boolean) {
+    isProcessing.value = processing
+  }
+
+  /**
+   * Définit une erreur
+   */
+  function setError(errorMessage: string | null) {
+    error.value = errorMessage
+  }
+
+  /**
+   * Commence une nouvelle conversation
+   */
+  async function startNewConversation() {
+    await createConversation()
+  }
+
+  /**
+   * S'assure qu'il existe une conversation active
+   * Crée une nouvelle conversation si nécessaire
+   */
+  async function ensureConversation() {
+    if (!currentConversationId.value) {
+      await createConversation()
+    }
+  }
+
+  /**
+   * Ajoute un message localement (pour affichage immédiat)
+   */
+  function addMessage(message: Message) {
+    if (!currentConversation.value) return
+
+    // Ajouter le message à la conversation courante
+    if (!currentConversation.value.messages) {
+      currentConversation.value.messages = []
+    }
+    currentConversation.value.messages.push(message)
   }
 
   return {
     // State
-    messages,
+    conversations,
+    currentConversationId,
     isRecording,
     isProcessing,
+    isLoading,
     error,
     // Getters
+    currentConversation,
+    currentMessages,
     messageCount,
     lastMessage,
     isPlaying,
+    hasActiveConversation,
     // Actions
-    addMessage,
-    setRecording,
-    setProcessing,
-    setError,
+    loadConversations,
+    createConversation,
+    selectConversation,
+    renameConversation,
+    deleteConversation,
     processVoiceMessage,
     playAudio,
     stopAudio,
-    clearMessages,
+    setRecording,
+    setProcessing,
+    setError,
+    startNewConversation,
+    ensureConversation,
+    addMessage,
   }
 })

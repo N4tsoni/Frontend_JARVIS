@@ -3,29 +3,9 @@
 @tailwind components;
 @tailwind utilities;
 
-// Variables SCSS
-$primary: #667eea;
-$primary-light: #a855f7;
-$primary-dark: #764ba2;
-$success: #10b981;
-$error: #ef4444;
-$warning: #f59e0b;
-$dark-bg: #0a0e27;
-
-// Mixins
-@mixin glass-effect {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-@mixin gradient-primary {
-  background: linear-gradient(135deg, $primary 0%, $primary-dark 100%);
-}
-
-@mixin gradient-success {
-  background: linear-gradient(135deg, $success 0%, #059669 100%);
-}
+// Import variables and mixins
+@import './variables';
+@import './mixins';
 
 // Global styles
 * {

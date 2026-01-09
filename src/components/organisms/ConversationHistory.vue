@@ -5,19 +5,19 @@ import { ChatLineRound, ChatDotRound, Delete, User, Cpu } from '@element-plus/ic
 import { BaseButton, BaseIcon } from '../atoms'
 import { MessageBubble, AudioPlayer } from '../molecules'
 import { useConversationStore } from '@/stores/conversation'
-import type { ConversationMessage } from '@/types/api'
+import type { Message } from '@/types/api'
 
 // Store
 const conversationStore = useConversationStore()
 
 // State
-const playingMessageId = ref<string | null>(null)
+const playingMessageId = ref<number | null>(null)
 
 // Computed
-const messages = computed(() => conversationStore.messages)
+const messages = computed(() => conversationStore.currentMessages)
 
 // Methods
-function formatTime(timestamp: Date): string {
+function formatTime(timestamp: string): string {
   const date = new Date(timestamp)
   return date.toLocaleTimeString('fr-FR', {
     hour: '2-digit',
@@ -25,12 +25,12 @@ function formatTime(timestamp: Date): string {
   })
 }
 
-function isPlayingMessage(messageId: string): boolean {
+function isPlayingMessage(messageId: number): boolean {
   return playingMessageId.value === messageId
 }
 
-async function toggleAudio(message: ConversationMessage) {
-  if (!message.audioUrl) return
+async function toggleAudio(message: Message) {
+  if (!message.audio_url) return
 
   try {
     if (isPlayingMessage(message.id)) {
@@ -38,7 +38,7 @@ async function toggleAudio(message: ConversationMessage) {
       playingMessageId.value = null
     } else {
       playingMessageId.value = message.id
-      await conversationStore.playAudio(message.audioUrl)
+      await conversationStore.playAudio(message.audio_url)
       playingMessageId.value = null
     }
   } catch (error) {
@@ -48,17 +48,19 @@ async function toggleAudio(message: ConversationMessage) {
 }
 
 async function handleClear() {
+  if (!conversationStore.currentConversationId) return
+
   try {
     await ElMessageBox.confirm(
-      'Êtes-vous sûr de vouloir effacer tout l\'historique ?',
+      'Êtes-vous sûr de vouloir supprimer cette conversation ?',
       'Confirmation',
       {
-        confirmButtonText: 'Effacer',
+        confirmButtonText: 'Supprimer',
         cancelButtonText: 'Annuler',
         type: 'warning',
       }
     )
-    conversationStore.clearMessages()
+    await conversationStore.deleteConversation(conversationStore.currentConversationId)
   } catch {
     // Cancelled
   }
@@ -92,13 +94,13 @@ async function handleClear() {
           :role="message.role"
           :author="message.role === 'user' ? 'Vous' : 'Jarvis'"
           :content="message.content"
-          :timestamp="formatTime(message.timestamp)"
+          :timestamp="formatTime(message.created_at)"
         >
           <template #icon>
             <User v-if="message.role === 'user'" />
             <Cpu v-else />
           </template>
-          <template v-if="message.audioUrl && message.role === 'assistant'" #actions>
+          <template v-if="message.audio_url && message.role === 'assistant'" #actions>
             <AudioPlayer
               :is-playing="isPlayingMessage(message.id)"
               @toggle="() => toggleAudio(message)"
@@ -125,4 +127,21 @@ async function handleClear() {
 
 <style lang="scss" scoped>
 @import '@/styles/main.scss';
+
+.conversation-history {
+  height: 100%;
+  overflow: hidden;
+
+  :deep(.el-scrollbar) {
+    height: 100%;
+
+    .el-scrollbar__wrap {
+      overflow-x: hidden;
+    }
+
+    .el-scrollbar__view {
+      height: 100%;
+    }
+  }
+}
 </style>
