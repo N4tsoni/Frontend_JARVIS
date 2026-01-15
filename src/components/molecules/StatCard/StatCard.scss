@@ -1,0 +1,27 @@
+@use '@/styles' as *;
+
+.stat-card {
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.stat-icon {
+  @apply text-white shadow-lg;
+
+  &.icon-primary {
+    @include gradient-primary;
+  }
+
+  &.icon-success {
+    @include gradient-success;
+  }
+
+  &.icon-error {
+    background: linear-gradient(135deg, $error 0%, darken($error, 10%) 100%);
+  }
+
+  &.icon-warning {
+    background: linear-gradient(135deg, $warning 0%, darken($warning, 10%) 100%);
+  }
+}

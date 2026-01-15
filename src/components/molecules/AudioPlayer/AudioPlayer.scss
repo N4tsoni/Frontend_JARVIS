@@ -1,0 +1,22 @@
+@use '@/styles' as *;
+
+.audio-player {
+  &:hover {
+    transform: translateX(2px);
+    color: $primary;
+  }
+
+  &.is-playing {
+    background: linear-gradient(135deg, rgba($primary, 0.2) 0%, rgba($primary-dark, 0.2) 100%);
+    border-color: $primary;
+    color: $primary;
+  }
+
+  &.size-sm {
+    @apply text-xs;
+  }
+
+  &.size-lg {
+    @apply px-6 py-3 text-base;
+  }
+}

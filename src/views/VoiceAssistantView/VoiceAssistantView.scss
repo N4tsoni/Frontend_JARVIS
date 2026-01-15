@@ -1,0 +1,213 @@
+@use '@/styles' as *;
+
+.voice-assistant-view {
+  width: 100%;
+  height: 100vh;
+  padding: 1.5rem;
+  overflow: hidden;
+}
+
+.assistant-layout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 1.5rem;
+  height: 100%;
+  overflow: hidden;
+}
+
+// Left Sidebar
+.sidebar-section {
+  @include glass-effect;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  }
+}
+
+// Right Chat Section
+.chat-section {
+  @include glass-effect;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  }
+}
+
+// Top Bar
+.conversation-topbar {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+  flex-shrink: 0;
+
+  .topbar-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    .conversation-title {
+      flex: 1;
+      font-size: 1rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .message-count {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 28px;
+      height: 28px;
+      padding: 0 0.5rem;
+      background: rgba($primary, 0.2);
+      border: 1px solid rgba($primary, 0.4);
+      border-radius: 14px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+  }
+}
+
+// Messages Area (scrollable)
+.messages-area {
+  flex: 1;
+  overflow: hidden;
+  padding: 1.5rem;
+  animation: fadeIn 0.3s ease;
+}
+
+// Input Controls Footer
+.recorder-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.input-wrapper {
+  flex: 1;
+}
+
+.compact-textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  color: white;
+  font-size: 0.875rem;
+  font-family: inherit;
+  resize: none;
+  min-height: 36px;
+  transition: all 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+  }
+}
+
+.send-button {
+  @include gradient-primary;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba($primary, 0.4);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.voice-button-wrapper {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive Design
+@media (max-width: 1024px) {
+  .assistant-layout {
+    grid-template-columns: 280px 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .voice-assistant-view {
+    padding: 1rem;
+  }
+
+  .assistant-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 1rem;
+
+    .sidebar-section {
+      max-height: 250px;
+    }
+  }
+
+  .recorder-footer {
+    padding: 1rem;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .input-wrapper {
+    max-width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .send-button {
+    font-size: 0.8125rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .voice-button-wrapper {
+    margin-left: 0;
+  }
+}

@@ -17,7 +17,7 @@ import type {
   KGGraphVisualization,
   KGUploadedFile,
   KGHealthResponse,
-} from '@/models'
+} from '@/types/api'
 
 class JarvisAPI {
   private client: AxiosInstance

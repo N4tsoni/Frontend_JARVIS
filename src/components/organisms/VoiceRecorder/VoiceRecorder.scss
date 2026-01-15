@@ -1,0 +1,106 @@
+@use '@/styles' as *;
+
+.mic-button {
+  @apply rounded-full flex items-center justify-center
+         text-white cursor-pointer border-none transition-all duration-300;
+  @include gradient-primary;
+
+  // Size variants
+  &.size-large {
+    @apply w-32 h-32;
+    box-shadow: 0 8px 24px rgba($primary, 0.4);
+
+    &:hover:not(:disabled) {
+      transform: scale(1.05);
+      box-shadow: 0 12px 32px rgba($primary, 0.6);
+    }
+  }
+
+  &.size-default {
+    @apply w-20 h-20;
+    box-shadow: 0 6px 16px rgba($primary, 0.4);
+
+    &:hover:not(:disabled) {
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba($primary, 0.6);
+    }
+  }
+
+  &.size-small {
+    @apply w-10 h-10;
+    box-shadow: 0 2px 8px rgba($primary, 0.3);
+
+    &:hover:not(:disabled) {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba($primary, 0.5);
+    }
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+
+  &.is-recording {
+    background: linear-gradient(135deg, $error 0%, darken($error, 10%) 100%);
+    animation: pulse-glow 1.5s ease-in-out infinite;
+
+    &.size-large {
+      box-shadow: 0 8px 24px rgba($error, 0.6);
+    }
+    &.size-default {
+      box-shadow: 0 6px 16px rgba($error, 0.6);
+    }
+    &.size-small {
+      box-shadow: 0 2px 8px rgba($error, 0.5);
+    }
+  }
+
+  &.is-processing {
+    background: linear-gradient(135deg, $warning 0%, darken($warning, 10%) 100%);
+    @apply cursor-wait opacity-80;
+  }
+
+  &:disabled {
+    @apply cursor-not-allowed opacity-60;
+  }
+}
+
+.ring {
+  @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+         border-2 border-primary rounded-full;
+  animation: ripple 2s ease-out infinite;
+
+  &.ring-1 {
+    animation-delay: 0s;
+  }
+
+  &.ring-2 {
+    animation-delay: 0.6s;
+  }
+
+  &.ring-3 {
+    animation-delay: 1.2s;
+  }
+}
+
+.pulsing {
+  animation: pulse-icon 1s ease-in-out infinite;
+}
+
+@keyframes pulse-icon {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 8px 24px rgba($error, 0.6);
+  }
+  50% {
+    box-shadow: 0 8px 32px rgba($error, 0.9);
+  }
+}

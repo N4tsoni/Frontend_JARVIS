@@ -1,0 +1,43 @@
+@use '@/styles' as *;
+
+.message-bubble {
+  animation: slideIn 0.3s ease forwards;
+
+  &.role-user {
+    @apply flex-row-reverse;
+
+    .message-content-wrapper {
+      @apply items-end;
+    }
+
+    .message-content {
+      background: linear-gradient(135deg, rgba($primary, 0.2) 0%, rgba($primary-dark, 0.2) 100%);
+      @apply rounded-tr-sm;
+      color: rgba(255, 255, 255, 0.95);
+
+      &:hover {
+        background: linear-gradient(135deg, rgba($primary, 0.3) 0%, rgba($primary-dark, 0.3) 100%);
+      }
+    }
+  }
+
+  &.role-assistant {
+    .message-content {
+      @apply rounded-tl-sm;
+      background: rgba(255, 255, 255, 0.05);
+      color: rgba(255, 255, 255, 0.9);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.08);
+      }
+    }
+  }
+}
+
+.message-content {
+  @apply text-sm leading-relaxed;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+}

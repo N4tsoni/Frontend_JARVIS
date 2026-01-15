@@ -1,0 +1,18 @@
+@use '@/styles' as *;
+
+.conversation-history {
+  height: 100%;
+  overflow: hidden;
+
+  :deep(.el-scrollbar) {
+    height: 100%;
+
+    .el-scrollbar__wrap {
+      overflow-x: hidden;
+    }
+
+    .el-scrollbar__view {
+      height: 100%;
+    }
+  }
+}

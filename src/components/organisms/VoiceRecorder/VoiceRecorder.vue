@@ -1,0 +1,256 @@
+<script setup lang="ts">
+import { ref, computed, onUnmounted } from 'vue'
+import { ElMessage } from 'element-plus'
+import { Microphone, VideoPlay } from '@element-plus/icons-vue'
+import { BaseIcon, BaseSpinner, BaseBadge } from '../../atoms'
+import { useConversationStore } from '@/stores/conversationStore'
+
+// Props
+interface Props {
+  size?: 'large' | 'default' | 'small'
+  showWaveform?: boolean
+  iconSize?: number
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  size: 'large',
+  showWaveform: true,
+  iconSize: 48,
+})
+
+// Store
+const conversationStore = useConversationStore()
+
+// State
+const mediaRecorder = ref<MediaRecorder | null>(null)
+const audioChunks = ref<Blob[]>([])
+const stream = ref<MediaStream | null>(null)
+const waveformCanvas = ref<HTMLCanvasElement | null>(null)
+const animationFrame = ref<number | null>(null)
+const audioContext = ref<AudioContext | null>(null)
+const analyser = ref<AnalyserNode | null>(null)
+
+// Computed
+const isRecording = computed(() => conversationStore.isRecording)
+const isProcessing = computed(() => conversationStore.isProcessing)
+
+const buttonClasses = computed(() => {
+  const classes = ['mic-button']
+  if (isRecording.value) classes.push('is-recording')
+  if (isProcessing.value) classes.push('is-processing')
+  classes.push(`size-${props.size}`)
+  return classes
+})
+
+const containerSizeClasses = computed(() => {
+  if (props.size === 'small') return 'w-10 h-10'
+  if (props.size === 'default') return 'w-20 h-20'
+  return 'w-32 h-32'
+})
+
+// Methods
+async function startRecording() {
+  if (isRecording.value || isProcessing.value) return
+
+  try {
+    stream.value = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        sampleRate: 16000,
+      }
+    })
+
+    const options = { mimeType: 'audio/webm' }
+    mediaRecorder.value = new MediaRecorder(stream.value, options)
+    audioChunks.value = []
+
+    mediaRecorder.value.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        audioChunks.value.push(event.data)
+      }
+    }
+
+    if (props.showWaveform && waveformCanvas.value) {
+      setupWaveform()
+    }
+
+    mediaRecorder.value.start()
+    conversationStore.setRecording(true)
+
+  } catch (error: any) {
+    console.error('Erreur microphone:', error)
+    ElMessage.error(`Impossible d'acceder au microphone`)
+  }
+}
+
+async function stopRecording() {
+  if (!isRecording.value || !mediaRecorder.value) return
+
+  return new Promise<void>((resolve) => {
+    if (!mediaRecorder.value) {
+      resolve()
+      return
+    }
+
+    mediaRecorder.value.onstop = async () => {
+      try {
+        const audioBlob = new Blob(audioChunks.value, { type: 'audio/webm' })
+        cleanup()
+        await conversationStore.processVoiceMessage(audioBlob)
+        resolve()
+      } catch (error: any) {
+        console.error('Erreur traitement:', error)
+        ElMessage.error('Erreur lors du traitement')
+        conversationStore.setRecording(false)
+        resolve()
+      }
+    }
+
+    mediaRecorder.value.stop()
+  })
+}
+
+function setupWaveform() {
+  if (!stream.value || !waveformCanvas.value) return
+
+  audioContext.value = new AudioContext()
+  const source = audioContext.value.createMediaStreamSource(stream.value)
+  analyser.value = audioContext.value.createAnalyser()
+  analyser.value.fftSize = 2048
+  source.connect(analyser.value)
+
+  drawWaveform()
+}
+
+function drawWaveform() {
+  if (!waveformCanvas.value || !analyser.value) return
+
+  const canvas = waveformCanvas.value
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+
+  const bufferLength = analyser.value.frequencyBinCount
+  const dataArray = new Uint8Array(bufferLength)
+
+  function draw() {
+    if (!analyser.value || !ctx) return
+
+    animationFrame.value = requestAnimationFrame(draw)
+    analyser.value.getByteTimeDomainData(dataArray)
+
+    ctx.fillStyle = 'rgba(10, 14, 39, 0.3)'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    ctx.lineWidth = 2
+    ctx.strokeStyle = '#667eea'
+    ctx.beginPath()
+
+    const sliceWidth = canvas.width / bufferLength
+    let x = 0
+
+    for (let i = 0; i < bufferLength; i++) {
+      const v = dataArray[i]! / 128.0
+      const y = (v * canvas.height) / 2
+
+      if (i === 0) {
+        ctx.moveTo(x, y)
+      } else {
+        ctx.lineTo(x, y)
+      }
+
+      x += sliceWidth
+    }
+
+    ctx.lineTo(canvas.width, canvas.height / 2)
+    ctx.stroke()
+  }
+
+  draw()
+}
+
+function cleanup() {
+  if (animationFrame.value) {
+    cancelAnimationFrame(animationFrame.value)
+    animationFrame.value = null
+  }
+
+  if (audioContext.value) {
+    audioContext.value.close()
+    audioContext.value = null
+  }
+
+  if (stream.value) {
+    stream.value.getTracks().forEach(track => track.stop())
+    stream.value = null
+  }
+
+  audioChunks.value = []
+  mediaRecorder.value = null
+  conversationStore.setRecording(false)
+}
+
+onUnmounted(() => {
+  cleanup()
+})
+</script>
+
+<template>
+  <div class="voice-recorder flex flex-col items-center" :class="size === 'small' ? 'gap-0' : 'gap-6'">
+    <!-- Microphone Button -->
+    <div class="relative flex items-center justify-center" :class="containerSizeClasses">
+      <!-- Recording Rings -->
+      <div v-if="isRecording" class="absolute inset-0 pointer-events-none">
+        <div class="ring ring-1"></div>
+        <div class="ring ring-2"></div>
+        <div class="ring ring-3"></div>
+      </div>
+
+      <!-- Button -->
+      <button
+        :class="buttonClasses"
+        :disabled="isProcessing"
+        @mousedown="startRecording"
+        @mouseup="stopRecording"
+        @touchstart.prevent="startRecording"
+        @touchend.prevent="stopRecording"
+        class="relative z-10"
+      >
+        <BaseIcon v-if="!isRecording && !isProcessing" :size="iconSize">
+          <Microphone />
+        </BaseIcon>
+        <BaseSpinner v-else-if="isProcessing" :size="size === 'small' ? 'sm' : 'lg'" color="white" />
+        <BaseIcon v-else :size="iconSize" class="pulsing">
+          <VideoPlay />
+        </BaseIcon>
+      </button>
+    </div>
+
+    <!-- Waveform -->
+    <div v-if="showWaveform && isRecording" class="w-full max-w-md p-4 glass-effect rounded-2xl">
+      <canvas ref="waveformCanvas" class="w-full h-20 rounded-lg" width="400" height="80"></canvas>
+    </div>
+
+    <!-- Status Badge -->
+    <BaseBadge
+      v-if="isRecording"
+      type="error"
+      dot
+      pulse
+      size="md"
+    >
+      Enregistrement...
+    </BaseBadge>
+    <BaseBadge
+      v-else-if="isProcessing"
+      type="warning"
+      dot
+      pulse
+      size="md"
+    >
+      Traitement en cours...
+    </BaseBadge>
+  </div>
+</template>
+
+<style lang="scss" scoped src="./VoiceRecorder.scss"></style>

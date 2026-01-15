@@ -1,0 +1,5 @@
+// Forward variables and mixins for use in components
+// Usage: @use '@/styles' as *;
+
+@forward './variables';
+@forward './mixins';
