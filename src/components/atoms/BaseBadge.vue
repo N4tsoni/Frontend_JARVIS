@@ -22,7 +22,7 @@ const props = withDefaults(defineProps<Props>(), {
 </template>
 
 <style lang="scss" scoped>
-@import '@/styles/main.scss';
+@use '@/styles' as *;
 
 .base-badge {
   @apply inline-flex items-center gap-2 font-medium rounded-full backdrop-blur-md

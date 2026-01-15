@@ -27,7 +27,7 @@ const props = withDefaults(defineProps<Props>(), {
 </template>
 
 <style lang="scss" scoped>
-@import '@/styles/main.scss';
+@use '@/styles' as *;
 
 .base-avatar {
   @apply relative flex items-center justify-center rounded-full

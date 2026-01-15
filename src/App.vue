@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import NavigationSidebar from './components/organisms/NavigationSidebar.vue'
-import VoiceAssistantView from './views/VoiceAssistantView.vue'
-import KGBuilderView from './views/KGBuilderView.vue'
-import { jarvisApi } from './services/api'
+import { ref, onMounted, defineAsyncComponent } from 'vue'
+import { NavigationSidebar } from './components/organisms/NavigationSidebar'
+import { healthService } from '@/services'
+
+// Lazy load views for better initial performance
+const VoiceAssistantView = defineAsyncComponent(() => import('./views/VoiceAssistantView'))
+const KGBuilderView = defineAsyncComponent(() => import('./views/KGBuilderView'))
+const SettingsView = defineAsyncComponent(() => import('./views/SettingsView'))
 
 // State
 const currentPage = ref('voice')
@@ -12,9 +15,9 @@ const isHealthy = ref(false)
 // Methods
 async function checkHealth() {
   try {
-    const response = await jarvisApi.healthCheck()
+    const response = await healthService.check()
     isHealthy.value = response.status === 'healthy'
-  } catch (error: any) {
+  } catch (error) {
     isHealthy.value = false
     console.error('Health check failed:', error)
   }
@@ -56,6 +59,7 @@ onMounted(() => {
           <transition name="page-fade" mode="out-in">
             <VoiceAssistantView v-if="currentPage === 'voice'" key="voice" />
             <KGBuilderView v-else-if="currentPage === 'kg-builder'" key="kg-builder" />
+            <SettingsView v-else-if="currentPage === 'settings'" key="settings" />
           </transition>
         </div>
       </main>
@@ -64,12 +68,11 @@ onMounted(() => {
 </template>
 
 <style lang="scss">
-@import '@/styles/main.scss';
+@use '@/styles/main.scss';
 </style>
 
 <style lang="scss" scoped>
-@import '@/styles/variables';
-@import '@/styles/mixins';
+@use '@/styles' as *;
 
 .app-container {
   position: relative;

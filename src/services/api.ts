@@ -214,9 +214,18 @@ class JarvisAPI {
   /**
    * Upload and process a document in one call
    */
-  async uploadAndProcessDocument(file: File): Promise<KGProcessingResult> {
+  async uploadAndProcessDocument(
+    file: File,
+    useV3: boolean = false,
+    openrouterApiKey?: string
+  ): Promise<KGProcessingResult> {
     const formData = new FormData()
     formData.append('file', file)
+    formData.append('use_v3', useV3.toString())
+
+    if (openrouterApiKey) {
+      formData.append('openrouter_api_key', openrouterApiKey)
+    }
 
     const response = await this.client.post<KGProcessingResult>(
       '/kg/upload-and-process',
@@ -228,6 +237,61 @@ class JarvisAPI {
         timeout: 180000, // 3 minutes for processing
       }
     )
+    return response.data
+  }
+
+  /**
+   * Upload and process multiple documents in a batch
+   */
+  async uploadAndProcessBatch(
+    files: File[],
+    useV3: boolean = true,
+    openrouterApiKey?: string,
+    deduplicate: boolean = true,
+    inferCrossRelations: boolean = true
+  ): Promise<any> {
+    const formData = new FormData()
+
+    // Append all files
+    console.log(`📦 Preparing FormData with ${files.length} files`)
+    files.forEach((file, index) => {
+      console.log(`  - File ${index + 1}: ${file.name} (${file.size} bytes)`)
+      formData.append('files', file)
+    })
+
+    // Append settings
+    formData.append('use_v3', useV3.toString())
+    formData.append('deduplicate', deduplicate.toString())
+    formData.append('infer_cross_relations', inferCrossRelations.toString())
+
+    if (openrouterApiKey) {
+      formData.append('openrouter_api_key', openrouterApiKey)
+    }
+
+    // Log FormData entries
+    console.log('📋 FormData entries:')
+    for (const [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        console.log(`  ${key}: [File] ${value.name}`)
+      } else {
+        console.log(`  ${key}: ${value}`)
+      }
+    }
+
+    console.log('🚀 Sending batch upload request...')
+
+    const response = await this.client.post<any>(
+      '/kg/batch/upload-and-process',
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        timeout: 600000, // 10 minutes for batch processing
+      }
+    )
+
+    console.log('✅ Batch upload response received:', response.data)
     return response.data
   }
 
@@ -270,6 +334,24 @@ class JarvisAPI {
    */
   async listUploadedFiles(): Promise<{ count: number; files: KGUploadedFile[] }> {
     const response = await this.client.get('/kg/uploaded-files')
+    return response.data
+  }
+
+  // ==================== Settings Methods ====================
+
+  /**
+   * Get user settings
+   */
+  async getSettings(): Promise<any> {
+    const response = await this.client.get('/settings')
+    return response.data
+  }
+
+  /**
+   * Update user settings
+   */
+  async updateSettings(settings: any): Promise<any> {
+    const response = await this.client.put('/settings', settings)
     return response.data
   }
 }

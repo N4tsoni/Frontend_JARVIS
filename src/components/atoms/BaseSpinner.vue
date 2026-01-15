@@ -17,7 +17,7 @@ const props = withDefaults(defineProps<Props>(), {
 </template>
 
 <style lang="scss" scoped>
-@import '@/styles/main.scss';
+@use '@/styles' as *;
 
 .base-spinner {
   @apply inline-flex items-center justify-center;

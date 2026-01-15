@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 
 interface Props {
-  variant?: 'primary' | 'success' | 'error' | 'warning' | 'ghost'
+  variant?: 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'ghost'
   size?: 'sm' | 'md' | 'lg' | 'xl'
   circle?: boolean
   loading?: boolean
@@ -58,7 +58,7 @@ function handleClick(event: MouseEvent) {
 </template>
 
 <style lang="scss" scoped>
-@import '@/styles/main.scss';
+@use '@/styles' as *;
 
 .base-button {
   @apply relative inline-flex items-center justify-center font-medium
@@ -79,10 +79,22 @@ function handleClick(event: MouseEvent) {
     }
   }
   
+  &.variant-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    @apply text-white/80;
+
+    &:hover:not(.is-disabled):not(.is-loading) {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.3);
+      @apply text-white;
+    }
+  }
+
   &.variant-success {
     @include gradient-success;
     @apply text-white shadow-lg;
-    
+
     &:hover:not(.is-disabled):not(.is-loading) {
       @apply shadow-xl;
       transform: translateY(-2px);

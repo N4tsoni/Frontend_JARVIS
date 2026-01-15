@@ -1,4 +1,8 @@
-// Molecules - Export barrel file
-export { default as StatCard } from './StatCard.vue'
-export { default as MessageBubble } from './MessageBubble.vue'
-export { default as AudioPlayer } from './AudioPlayer.vue'
+// Molecules - Combinations of atoms
+export { StatCard } from './StatCard'
+export { AudioPlayer } from './AudioPlayer'
+export { MessageBubble } from './MessageBubble'
+export { LoadingOverlay } from './LoadingOverlay'
+export { PipelineProgress } from './PipelineProgress'
+export { SettingToggle } from './SettingToggle'
+export { TextInput } from './TextInput'
