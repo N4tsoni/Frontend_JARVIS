@@ -1,0 +1,284 @@
+@use '@/styles' as *;
+
+.article-view {
+  min-height: 100vh;
+  padding: 2rem;
+  overflow-y: auto;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+// Back Button
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: rgba(white, 0.05);
+  border: 1px solid rgba(white, 0.1);
+  border-radius: 10px;
+  color: $text-secondary;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 2rem;
+
+  &:hover {
+    background: rgba(white, 0.1);
+    border-color: rgba($primary, 0.3);
+    color: $text-primary;
+  }
+
+  .el-icon {
+    font-size: 1rem;
+  }
+}
+
+// Article Content
+.article-content {
+  background: rgba(white, 0.03);
+  border-radius: 20px;
+  border: 1px solid rgba(white, 0.08);
+  padding: 2.5rem;
+}
+
+// Article Header
+.article-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(white, 0.1);
+}
+
+.article-icon {
+  font-size: 3.5rem;
+  width: 90px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba($primary, 0.2) 0%, rgba($primary-light, 0.1) 100%);
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+
+.article-meta {
+  flex: 1;
+}
+
+.article-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: $text-primary;
+  margin-bottom: 0.75rem;
+  line-height: 1.2;
+}
+
+.article-subtitle {
+  font-size: 1.1rem;
+  color: $text-secondary;
+  line-height: 1.5;
+}
+
+// Article Body
+.article-body {
+  color: $text-secondary;
+  line-height: 1.8;
+}
+
+.section-paragraph {
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  color: $text-secondary;
+}
+
+.section-heading {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: $text-primary;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(white, 0.08);
+}
+
+.section-list {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+
+  li {
+    margin-bottom: 0.75rem;
+    color: $text-secondary;
+    position: relative;
+
+    &::marker {
+      color: $primary;
+    }
+  }
+}
+
+.section-code {
+  background: rgba(white, 0.05);
+  border: 1px solid rgba(white, 0.1);
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+
+  code {
+    font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 0.875rem;
+    color: $text-primary;
+  }
+}
+
+.section-highlight {
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, rgba($primary, 0.1) 0%, rgba($primary-light, 0.05) 100%);
+  border: 1px solid rgba($primary, 0.2);
+  border-radius: 12px;
+  margin: 2rem 0;
+
+  .highlight-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  p {
+    margin: 0;
+    color: $text-primary;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+}
+
+// Related Articles
+.related-articles {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(white, 0.1);
+}
+
+.related-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: 1.25rem;
+}
+
+.related-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.related-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  background: rgba(white, 0.05);
+  border: 1px solid rgba(white, 0.1);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(white, 0.08);
+    border-color: rgba($primary, 0.3);
+    transform: translateY(-2px);
+  }
+
+  .related-icon {
+    font-size: 1.25rem;
+  }
+
+  .related-name {
+    font-size: 0.9rem;
+    color: $text-secondary;
+    font-weight: 500;
+  }
+
+  &:hover .related-name {
+    color: $text-primary;
+  }
+}
+
+// Not Found
+.article-not-found {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: rgba(white, 0.03);
+  border-radius: 20px;
+  border: 1px solid rgba(white, 0.08);
+
+  .not-found-icon {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: $text-primary;
+    margin-bottom: 0.75rem;
+  }
+
+  p {
+    color: $text-secondary;
+    margin-bottom: 2rem;
+  }
+
+  .back-button {
+    margin-bottom: 0;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .article-view {
+    padding: 1rem;
+  }
+
+  .article-content {
+    padding: 1.5rem;
+  }
+
+  .article-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .article-icon {
+    width: 70px;
+    height: 70px;
+    font-size: 2.5rem;
+  }
+
+  .article-title {
+    font-size: 1.5rem;
+  }
+
+  .article-subtitle {
+    font-size: 1rem;
+  }
+
+  .section-heading {
+    font-size: 1.2rem;
+  }
+
+  .related-grid {
+    flex-direction: column;
+  }
+
+  .related-card {
+    width: 100%;
+    justify-content: center;
+  }
+}

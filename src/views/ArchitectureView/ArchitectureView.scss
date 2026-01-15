@@ -1,0 +1,223 @@
+@use '@/styles' as *;
+
+.architecture-view {
+  min-height: 100vh;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+// Header
+.page-header {
+  text-align: center;
+  margin-bottom: 3rem;
+
+  .header-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
+
+  .page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: $text-primary;
+    margin-bottom: 0.5rem;
+  }
+
+  .page-subtitle {
+    font-size: 1.125rem;
+    color: $text-secondary;
+  }
+}
+
+// Coming Soon Content
+.coming-soon-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-card {
+  max-width: 900px;
+  width: 100%;
+  background: rgba(white, 0.03);
+  border: 1px solid rgba(white, 0.08);
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+// Preview Illustration
+.preview-illustration {
+  background: linear-gradient(135deg, rgba($warning, 0.1) 0%, rgba($warning, 0.05) 100%);
+  padding: 3rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  position: relative;
+  min-height: 200px;
+}
+
+.node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  background: rgba(white, 0.1);
+  border: 2px solid rgba(white, 0.2);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  animation: float 3s ease-in-out infinite;
+
+  &:hover {
+    transform: scale(1.05);
+    border-color: $warning;
+  }
+
+  .node-icon {
+    font-size: 2rem;
+  }
+
+  .node-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: $text-secondary;
+    white-space: nowrap;
+  }
+
+  &.node-1 { animation-delay: 0s; }
+  &.node-2 { animation-delay: 0.5s; }
+  &.node-3 { animation-delay: 1s; }
+  &.node-4 { animation-delay: 1.5s; }
+}
+
+.connector {
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba($warning, 0.3), rgba($warning, 0.8), rgba($warning, 0.3));
+  position: relative;
+
+  &::after {
+    content: '→';
+    position: absolute;
+    right: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $warning;
+    font-size: 1rem;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+// Preview Info
+.preview-info {
+  padding: 2rem;
+  text-align: center;
+
+  .coming-badge {
+    display: inline-block;
+    padding: 0.5rem 1.5rem;
+    background: linear-gradient(135deg, rgba($warning, 0.2) 0%, rgba($warning, 0.1) 100%);
+    border: 1px solid rgba($warning, 0.3);
+    border-radius: 30px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: $warning;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 1.5rem;
+  }
+
+  .preview-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: $text-primary;
+    margin-bottom: 1rem;
+  }
+
+  .preview-description {
+    font-size: 1rem;
+    color: $text-secondary;
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto 2rem;
+  }
+}
+
+.feature-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: rgba(white, 0.05);
+  border: 1px solid rgba(white, 0.1);
+  border-radius: 30px;
+  font-size: 0.875rem;
+  color: $text-secondary;
+
+  .feature-icon {
+    font-size: 1rem;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .architecture-view {
+    padding: 1rem;
+  }
+
+  .page-header {
+    .header-icon {
+      font-size: 3rem;
+    }
+
+    .page-title {
+      font-size: 1.75rem;
+    }
+  }
+
+  .preview-illustration {
+    padding: 2rem 1rem;
+  }
+
+  .node {
+    padding: 0.75rem 1rem;
+
+    .node-icon {
+      font-size: 1.5rem;
+    }
+
+    .node-label {
+      font-size: 0.65rem;
+    }
+  }
+
+  .connector {
+    width: 20px;
+  }
+
+  .preview-info {
+    padding: 1.5rem;
+  }
+
+  .feature-list {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

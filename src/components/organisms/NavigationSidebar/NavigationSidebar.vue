@@ -1,6 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Headset, DataAnalysis, Setting, DArrowLeft, DArrowRight } from '@element-plus/icons-vue'
+import {
+  Headset,
+  DataAnalysis,
+  Setting,
+  DArrowLeft,
+  DArrowRight,
+  InfoFilled,
+  Share,
+  Download,
+  Service,
+} from '@element-plus/icons-vue'
 import BaseIcon from '../../atoms/BaseIcon.vue'
 
 interface Props {
@@ -19,6 +29,16 @@ const isCollapsed = ref(false)
 
 const navItems = [
   {
+    id: 'jarvis',
+    label: 'Jarvis',
+    icon: Service,
+  },
+  {
+    id: 'features',
+    label: 'Features',
+    icon: InfoFilled,
+  },
+  {
     id: 'voice',
     label: 'Voice Assistant',
     icon: Headset,
@@ -27,6 +47,16 @@ const navItems = [
     id: 'kg-builder',
     label: 'KG Builder',
     icon: DataAnalysis,
+  },
+  {
+    id: 'architecture',
+    label: 'Architecture',
+    icon: Share,
+  },
+  {
+    id: 'data-collector',
+    label: 'Data Collector',
+    icon: Download,
   },
 ]
 

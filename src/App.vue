@@ -4,12 +4,16 @@ import { NavigationSidebar } from './components/organisms/NavigationSidebar'
 import { healthService } from '@/services'
 
 // Lazy load views for better initial performance
+const JarvisView = defineAsyncComponent(() => import('./views/JarvisView'))
+const FeaturesView = defineAsyncComponent(() => import('./views/FeaturesView'))
 const VoiceAssistantView = defineAsyncComponent(() => import('./views/VoiceAssistantView'))
 const KGBuilderView = defineAsyncComponent(() => import('./views/KGBuilderView'))
+const ArchitectureView = defineAsyncComponent(() => import('./views/ArchitectureView'))
+const DataCollectorView = defineAsyncComponent(() => import('./views/DataCollectorView'))
 const SettingsView = defineAsyncComponent(() => import('./views/SettingsView'))
 
 // State
-const currentPage = ref('voice')
+const currentPage = ref('jarvis')
 const isHealthy = ref(false)
 
 // Methods
@@ -57,8 +61,12 @@ onMounted(() => {
         <!-- Page Content -->
         <div class="page-container">
           <transition name="page-fade" mode="out-in">
-            <VoiceAssistantView v-if="currentPage === 'voice'" key="voice" />
+            <JarvisView v-if="currentPage === 'jarvis'" key="jarvis" @navigate="handleNavigate" />
+            <FeaturesView v-else-if="currentPage === 'features'" key="features" />
+            <VoiceAssistantView v-else-if="currentPage === 'voice'" key="voice" />
             <KGBuilderView v-else-if="currentPage === 'kg-builder'" key="kg-builder" />
+            <ArchitectureView v-else-if="currentPage === 'architecture'" key="architecture" />
+            <DataCollectorView v-else-if="currentPage === 'data-collector'" key="data-collector" />
             <SettingsView v-else-if="currentPage === 'settings'" key="settings" />
           </transition>
         </div>
