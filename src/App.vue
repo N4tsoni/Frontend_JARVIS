@@ -11,6 +11,7 @@ const KGBuilderView = defineAsyncComponent(() => import('./views/KGBuilderView')
 const ArchitectureView = defineAsyncComponent(() => import('./views/ArchitectureView'))
 const DataCollectorView = defineAsyncComponent(() => import('./views/DataCollectorView'))
 const SettingsView = defineAsyncComponent(() => import('./views/SettingsView'))
+const HardwareView = defineAsyncComponent(() => import('./views/HardwareView'))
 
 // State
 const currentPage = ref('jarvis')
@@ -68,6 +69,7 @@ onMounted(() => {
             <ArchitectureView v-else-if="currentPage === 'architecture'" key="architecture" />
             <DataCollectorView v-else-if="currentPage === 'data-collector'" key="data-collector" />
             <SettingsView v-else-if="currentPage === 'settings'" key="settings" />
+            <HardwareView v-else-if="currentPage === 'hardware'" key="hardware" />
           </transition>
         </div>
       </main>

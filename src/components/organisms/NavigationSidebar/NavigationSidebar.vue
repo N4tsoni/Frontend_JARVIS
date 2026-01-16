@@ -10,6 +10,7 @@ import {
   Share,
   Download,
   Service,
+  Cpu,
 } from '@element-plus/icons-vue'
 import BaseIcon from '../../atoms/BaseIcon.vue'
 
@@ -57,6 +58,11 @@ const navItems = [
     id: 'data-collector',
     label: 'Data Collector',
     icon: Download,
+  },
+  {
+    id: 'hardware',
+    label: 'Hardware',
+    icon: Cpu,
   },
 ]
 

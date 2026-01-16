@@ -68,7 +68,8 @@ const categories = ref<FeatureCategory[]>([
         title: 'Multi-Format Support',
         description: 'Support des formats PDF, CSV, JSON, TXT, XLSX et XML avec parsers spécialisés.',
         status: 'active',
-        icon: '📄'
+        icon: '📄',
+        articleId: 'stage-parsing'
       },
       {
         title: 'Batch Processing',
@@ -80,7 +81,44 @@ const categories = ref<FeatureCategory[]>([
         title: 'Neo4j Storage',
         description: 'Stockage persistant dans Neo4j avec requêtes Cypher optimisées.',
         status: 'active',
-        icon: '💾'
+        icon: '💾',
+        articleId: 'stage-storage'
+      },
+      // Pipeline Stages détaillés
+      {
+        title: 'Chunking Stage',
+        description: 'Découpage intelligent des documents longs en segments optimisés pour le contexte LLM.',
+        status: 'active',
+        icon: '✂️',
+        articleId: 'stage-chunking'
+      },
+      {
+        title: 'Embedding Stage',
+        description: 'Génération de vecteurs sémantiques (384 dims) pour la recherche et résolution d\'entités.',
+        status: 'active',
+        icon: '🧮',
+        articleId: 'stage-embedding'
+      },
+      {
+        title: 'NER Stage',
+        description: 'Pré-extraction rapide des entités avec spaCy avant l\'analyse LLM.',
+        status: 'active',
+        icon: '🏷️',
+        articleId: 'stage-ner'
+      },
+      {
+        title: 'Extraction Stage',
+        description: 'Extraction des entités et relations via Claude avec modes GUIDED/OPEN/HYBRID.',
+        status: 'active',
+        icon: '🤖',
+        articleId: 'stage-extraction'
+      },
+      {
+        title: 'Validation Stage',
+        description: 'Vérification de la qualité et cohérence des données extraites.',
+        status: 'active',
+        icon: '✅',
+        articleId: 'stage-validation'
       }
     ]
   },
@@ -130,6 +168,42 @@ const categories = ref<FeatureCategory[]>([
         description: 'Mode texte alternatif pour les interactions silencieuses.',
         status: 'active',
         icon: '⌨️'
+      },
+      // Graph RAG Components
+      {
+        title: 'Graph RAG Pipeline',
+        description: 'Retrieval-Augmented Generation enrichi par Knowledge Graph pour des réponses factuelles.',
+        status: 'active',
+        icon: '🎯',
+        articleId: 'graph-rag-overview'
+      },
+      {
+        title: 'Semantic Retrieval',
+        description: 'Recherche vectorielle combinant embeddings et traversée du graphe.',
+        status: 'active',
+        icon: '🔍',
+        articleId: 'semantic-retrieval'
+      },
+      {
+        title: 'Multi-Factor Ranking',
+        description: 'Scoring combiné Embedding + NER + Graph Centrality pour sélectionner le contexte optimal.',
+        status: 'active',
+        icon: '📊',
+        articleId: 'multi-factor-ranking'
+      },
+      {
+        title: 'Intelligent Routing',
+        description: 'Routage dynamique KG/LLM basé sur le kg_match_score et la décomposition de requêtes.',
+        status: 'active',
+        icon: '🧭',
+        articleId: 'intelligent-routing'
+      },
+      {
+        title: 'KG + Embeddings + GDS',
+        description: 'Approche hybride combinant structure du graphe, sémantique vectorielle et Graph Data Science.',
+        status: 'active',
+        icon: '🔬',
+        articleId: 'kg-gds-combination'
       }
     ]
   },
@@ -262,12 +336,12 @@ function navigateToArticle(articleId: string) {
             <span class="stat-label">Modules</span>
           </div>
           <div class="stat-item">
-            <span class="stat-value">20+</span>
+            <span class="stat-value">30+</span>
             <span class="stat-label">Features</span>
           </div>
           <div class="stat-item">
-            <span class="stat-value">V3</span>
-            <span class="stat-label">Pipeline</span>
+            <span class="stat-value">20+</span>
+            <span class="stat-label">Articles</span>
           </div>
         </div>
       </div>
