@@ -159,6 +159,76 @@ export class KGService extends ApiService {
     const response = await this.axios.post('/knowledge/query', { query })
     return response.data
   }
+
+  // ==================== Export Operations ====================
+
+  /**
+   * Export the full graph as JSON (with embeddings)
+   */
+  async exportJson(): Promise<unknown> {
+    return this.get<unknown>('/export/json')
+  }
+
+  /**
+   * Export the graph as CSV (ZIP file download)
+   */
+  async exportCsv(): Promise<Blob> {
+    const response = await this.axios.get('/api/kg/export/csv', {
+      responseType: 'blob',
+    })
+    return response.data
+  }
+
+  /**
+   * Export the graph as GraphML (XML file download)
+   */
+  async exportGraphML(): Promise<Blob> {
+    const response = await this.axios.get('/api/kg/export/graphml', {
+      responseType: 'blob',
+    })
+    return response.data
+  }
+
+  /**
+   * Download a file blob
+   */
+  downloadBlob(blob: Blob, filename: string): void {
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  }
+
+  /**
+   * Download JSON export
+   */
+  async downloadJsonExport(): Promise<void> {
+    const data = await this.exportJson()
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: 'application/json',
+    })
+    this.downloadBlob(blob, 'knowledge_graph_export.json')
+  }
+
+  /**
+   * Download CSV export (ZIP)
+   */
+  async downloadCsvExport(): Promise<void> {
+    const blob = await this.exportCsv()
+    this.downloadBlob(blob, 'knowledge_graph_export.zip')
+  }
+
+  /**
+   * Download GraphML export
+   */
+  async downloadGraphMLExport(): Promise<void> {
+    const blob = await this.exportGraphML()
+    this.downloadBlob(blob, 'knowledge_graph.graphml')
+  }
 }
 
 // Export singleton instance

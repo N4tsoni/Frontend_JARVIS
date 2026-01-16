@@ -250,6 +250,115 @@
           </div>
         </section>
 
+        <!-- Orchestrator Section -->
+        <section class="settings-section">
+          <div class="section-header">
+            <h2 class="section-title">
+              <el-icon><Connection /></el-icon>
+              Orchestrateur Intelligent
+            </h2>
+            <p class="section-description">
+              Active le routage conditionnel des requêtes basé sur l'intention détectée
+            </p>
+          </div>
+
+          <div class="settings-grid">
+            <SettingToggle
+              v-model="settingsStore.settings.orchestrator.enabled"
+              title="Activer l'Orchestrateur"
+              :badge="orchestratorBadge"
+              :badge-type="orchestratorBadgeType"
+              description="L'orchestrateur analyse chaque requête pour déterminer le pipeline optimal: requête KG complète, conversation générale, ou réponse directe."
+              :active-color="'#e6a23c'"
+            >
+              <!-- Sub-options -->
+              <div class="orchestrator-suboptions">
+                <el-alert
+                  type="info"
+                  :closable="false"
+                  show-icon
+                  class="orch-info"
+                >
+                  <template #title>
+                    <strong>Routage Intelligent</strong>
+                  </template>
+                  L'orchestrateur optimise les performances en adaptant le pipeline selon le type de requête détecté.
+                </el-alert>
+
+                <!-- Options -->
+                <div class="orch-options">
+                  <el-checkbox
+                    v-model="settingsStore.settings.orchestrator.intelligentMode"
+                    @change="settingsStore.hasUnsavedChanges = true"
+                    :disabled="!settingsStore.settings.orchestrator.enabled"
+                  >
+                    <div class="feature-label">
+                      <strong>Mode Intelligent</strong>
+                      <span class="feature-desc">Active la conscience KG, décomposition des requêtes et routage adaptatif</span>
+                    </div>
+                  </el-checkbox>
+
+                  <el-checkbox
+                    v-model="settingsStore.settings.orchestrator.useIntentClassification"
+                    @change="settingsStore.hasUnsavedChanges = true"
+                    :disabled="!settingsStore.settings.orchestrator.enabled"
+                  >
+                    <div class="feature-label">
+                      <strong>Classification d'intention</strong>
+                      <span class="feature-desc">Analyse chaque requête pour déterminer son type (KG, général, direct)</span>
+                    </div>
+                  </el-checkbox>
+
+                  <el-checkbox
+                    v-model="settingsStore.settings.orchestrator.skipKGForGeneral"
+                    @change="settingsStore.hasUnsavedChanges = true"
+                    :disabled="!settingsStore.settings.orchestrator.enabled"
+                  >
+                    <div class="feature-label">
+                      <strong>Skip KG pour requêtes générales</strong>
+                      <span class="feature-desc">Passe directement au LLM pour les conversations générales (plus rapide)</span>
+                    </div>
+                  </el-checkbox>
+                </div>
+
+                <!-- Threshold slider -->
+                <div class="orch-threshold">
+                  <label class="setting-label">
+                    Seuil de confiance: {{ (settingsStore.settings.orchestrator.confidenceThreshold * 100).toFixed(0) }}%
+                  </label>
+                  <el-slider
+                    v-model="settingsStore.settings.orchestrator.confidenceThreshold"
+                    @change="settingsStore.hasUnsavedChanges = true"
+                    :disabled="!settingsStore.settings.orchestrator.enabled"
+                    :min="0.5"
+                    :max="1.0"
+                    :step="0.1"
+                    show-stops
+                    :format-tooltip="(val: number) => `${(val * 100).toFixed(0)}%`"
+                  />
+                  <p class="threshold-hint">
+                    Seuil minimum de confiance pour les réponses directes sans appel au KG
+                  </p>
+                </div>
+
+                <!-- Performance Info -->
+                <el-alert
+                  v-if="settingsStore.settings.orchestrator.enabled"
+                  type="success"
+                  :closable="false"
+                  show-icon
+                  class="orch-perf"
+                >
+                  <template #title>
+                    <strong>Gain de Performance</strong>
+                  </template>
+                  L'orchestrateur peut réduire la latence de 50-70% pour les conversations générales en skipant le pipeline KG.
+                </el-alert>
+              </div>
+            </SettingToggle>
+          </div>
+        </section>
+
         <!-- API Keys Section -->
         <section class="settings-section">
           <div class="section-header">
@@ -490,7 +599,8 @@ import {
   Headset,
   Key,
   Lock,
-  Link
+  Link,
+  Connection
 } from '@element-plus/icons-vue'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { SettingToggle } from '@/components/molecules'
@@ -521,6 +631,21 @@ const entityLinkingBadge = computed(() => {
 const entityLinkingBadgeType = computed(() => {
   if (!settingsStore.isEntityLinkingEnabled) return 'info'
   if (settingsStore.settings.entityLinking.autoRun) return 'success'
+  return 'warning'
+})
+
+// Orchestrator computed
+const orchestratorBadge = computed(() => {
+  if (!settingsStore.isOrchestratorEnabled) return 'Désactivé'
+  if (settingsStore.settings.orchestrator.intelligentMode) return 'Intelligent'
+  if (settingsStore.settings.orchestrator.skipKGForGeneral) return 'Optimisé'
+  return 'Actif'
+})
+
+const orchestratorBadgeType = computed(() => {
+  if (!settingsStore.isOrchestratorEnabled) return 'info'
+  if (settingsStore.settings.orchestrator.intelligentMode) return 'success'
+  if (settingsStore.settings.orchestrator.skipKGForGeneral) return 'warning'
   return 'warning'
 })
 

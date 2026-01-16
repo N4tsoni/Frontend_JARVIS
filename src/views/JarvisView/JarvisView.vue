@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { ElIcon } from 'element-plus'
 import { Reading } from '@element-plus/icons-vue'
 
 interface Module {
@@ -165,7 +166,7 @@ const showGraphRagArticle = ref(false)
           <h3>Pourquoi GraphRAG ?</h3>
           <p>Découvrez pourquoi les Knowledge Graphs révolutionnent le RAG traditionnel et comment Jarvis en tire parti.</p>
           <button class="read-article-btn">
-            <el-icon><Reading /></el-icon>
+            <ElIcon><Reading /></ElIcon>
             <span>Lire l'article</span>
           </button>
         </div>

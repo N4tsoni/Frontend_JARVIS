@@ -18,12 +18,23 @@ export interface EntityLinkingSettings {
   threshold: number
 }
 
+export interface OrchestratorSettings {
+  enabled: boolean
+  intelligentMode: boolean
+  useIntentClassification: boolean
+  skipKGForGeneral: boolean
+  confidenceThreshold: number
+}
+
 export interface AppSettings {
   // KG Pipeline
   kgPipeline: KGPipelineSettings
 
   // Entity Linking
   entityLinking: EntityLinkingSettings
+
+  // Orchestrator
+  orchestrator: OrchestratorSettings
 
   // LLM
   llmModel: string

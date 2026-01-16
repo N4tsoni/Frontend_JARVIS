@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { ElMessageBox, ElMessage } from 'element-plus'
+import { ElMessageBox, ElMessage, ElDropdown, ElDropdownMenu, ElDropdownItem } from 'element-plus'
 import { useKGStore } from '@/stores/kgStore'
+import { kgService } from '@/services'
 import { KGFileUpload } from '@/components/organisms/KGFileUpload'
 import { KGStatistics } from '@/components/organisms/KGStatistics'
 import { KGGraphViewer } from '@/components/organisms/KGGraphViewer'
@@ -10,6 +11,7 @@ import { BaseButton } from '@/components/atoms'
 const kgStore = useKGStore()
 const activeSection = ref<'upload' | 'stats' | 'graph'>('upload')
 const isClearing = ref(false)
+const isExporting = ref(false)
 
 // Initialize store on mount
 onMounted(async () => {
@@ -55,6 +57,32 @@ async function handleClearGraph() {
 function navigateTo(section: 'upload' | 'stats' | 'graph') {
   activeSection.value = section
 }
+
+async function handleExport(format: 'json' | 'csv' | 'graphml') {
+  try {
+    isExporting.value = true
+
+    switch (format) {
+      case 'json':
+        await kgService.downloadJsonExport()
+        ElMessage.success('Export JSON téléchargé')
+        break
+      case 'csv':
+        await kgService.downloadCsvExport()
+        ElMessage.success('Export CSV téléchargé')
+        break
+      case 'graphml':
+        await kgService.downloadGraphMLExport()
+        ElMessage.success('Export GraphML téléchargé')
+        break
+    }
+  } catch (error) {
+    console.error('Export failed:', error)
+    ElMessage.error('Erreur lors de l\'export')
+  } finally {
+    isExporting.value = false
+  }
+}
 </script>
 
 <template>
@@ -73,6 +101,41 @@ function navigateTo(section: 'upload' | 'stats' | 'graph') {
         </div>
 
         <div class="header-actions">
+          <!-- Export Dropdown -->
+          <ElDropdown
+            v-if="kgStore.hasGraph"
+            trigger="click"
+            :disabled="kgStore.isWorking || isExporting"
+            @command="handleExport"
+          >
+            <BaseButton
+              variant="secondary"
+              :disabled="kgStore.isWorking || isExporting"
+              :loading="isExporting"
+            >
+              <i v-if="!isExporting" class="el-icon-download" />
+              {{ isExporting ? 'Export...' : 'Exporter' }}
+              <i class="el-icon-arrow-down" style="margin-left: 6px" />
+            </BaseButton>
+            <template #dropdown>
+              <ElDropdownMenu>
+                <ElDropdownItem command="json">
+                  <i class="el-icon-document" />
+                  JSON (avec embeddings)
+                </ElDropdownItem>
+                <ElDropdownItem command="csv">
+                  <i class="el-icon-document-copy" />
+                  CSV (ZIP)
+                </ElDropdownItem>
+                <ElDropdownItem command="graphml">
+                  <i class="el-icon-share" />
+                  GraphML (Gephi, yEd)
+                </ElDropdownItem>
+              </ElDropdownMenu>
+            </template>
+          </ElDropdown>
+
+          <!-- Clear Graph Button -->
           <BaseButton
             v-if="kgStore.hasGraph"
             variant="error"

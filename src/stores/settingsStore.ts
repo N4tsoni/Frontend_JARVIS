@@ -11,7 +11,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { settingsService } from '@/services'
-import type { KGPipelineSettings, EntityLinkingSettings, AppSettings } from '@/models'
+import type { KGPipelineSettings, EntityLinkingSettings, OrchestratorSettings, AppSettings } from '@/models'
 
 const DEFAULT_SETTINGS: AppSettings = {
   kgPipeline: {
@@ -27,6 +27,13 @@ const DEFAULT_SETTINGS: AppSettings = {
     useWikidata: true,
     useDbpedia: true,
     threshold: 70
+  },
+  orchestrator: {
+    enabled: false,
+    intelligentMode: false,
+    useIntentClassification: true,
+    skipKGForGeneral: true,
+    confidenceThreshold: 0.7
   },
   llmModel: 'anthropic/claude-3.5-sonnet',
   llmMaxTokens: 500,
@@ -83,6 +90,9 @@ export const useSettingsStore = defineStore('settings', () => {
     if (el.useDbpedia) count++
     return count
   })
+
+  // Orchestrator getters
+  const isOrchestratorEnabled = computed(() => settings.value.orchestrator.enabled)
 
   // Actions
   async function loadSettings() {
@@ -200,6 +210,17 @@ export const useSettingsStore = defineStore('settings', () => {
     hasUnsavedChanges.value = true
   }
 
+  function updateOrchestrator(updates: Partial<OrchestratorSettings>) {
+    settings.value.orchestrator = { ...settings.value.orchestrator, ...updates }
+    hasUnsavedChanges.value = true
+  }
+
+  function toggleOrchestrator() {
+    const newState = !settings.value.orchestrator.enabled
+    settings.value.orchestrator.enabled = newState
+    hasUnsavedChanges.value = true
+  }
+
   function resetToDefaults() {
     settings.value = { ...DEFAULT_SETTINGS }
     hasUnsavedChanges.value = true
@@ -228,6 +249,7 @@ export const useSettingsStore = defineStore('settings', () => {
     maskedOpenRouterKey,
     isEntityLinkingEnabled,
     entityLinkingSourceCount,
+    isOrchestratorEnabled,
 
     // Actions
     loadSettings,
@@ -240,6 +262,8 @@ export const useSettingsStore = defineStore('settings', () => {
     updateApiKey,
     updateEntityLinking,
     toggleEntityLinking,
+    updateOrchestrator,
+    toggleOrchestrator,
     resetToDefaults,
     discardChanges
   }
